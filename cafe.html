@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Café Login & Menu</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      filter: sepia(10%) brightness(1.1);
+    }
+    .container {
+      background-color: rgba(0, 0, 0, 0.6);
+      max-width: 400px;
+      margin: 50px auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+      animation: fadeIn 1s ease-in-out;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 6px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #ff7043;
+      border: none;
+      color: white;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #ff5722;
+    }
+    .toggle {
+      text-align: center;
+      margin-top: 15px;
+      cursor: pointer;
+      color: #ffab91;
+    }
+    .menu {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: rgba(0,0,0,0.6);
+      padding: 20px;
+      border-radius: 12px;
+      animation: fadeIn 1s ease-in-out;
+    }
+    .menu h2 {
+      text-align: center;
+    }
+    .welcome-user {
+      text-align: center;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+    .logout {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .logout button {
+      width: auto;
+      padding: 8px 16px;
+      font-size: 14px;
+      background-color: #e53935;
+    }
+    .menu-category {
+      margin-top: 20px;
+    }
+    .menu-category h3 {
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 10px 0;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #ccc;
+    }
+    #searchBar {
+      width: 90%;
+      margin: 10px auto;
+      display: block;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 16px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="auth-box">
+    <h2 id="form-title">Login</h2>
+    <input type="email" id="email" placeholder="Email" required />
+    <input type="password" id="password" placeholder="Password" required />
+    <div id="extra-field"></div>
+    <button onclick="handleSubmit()">Submit</button>
+    <div class="toggle" onclick="toggleForm()">Don't have an account? Sign Up</div>
+  </div>
+
+  <div class="menu" id="menu" style="display: none;">
+    <h2>Welcome to Our Café!</h2>
+    <div class="welcome-user" id="welcome-user"></div>
+    <div class="logout"><button onclick="logoutUser()">Logout</button></div>
+    <input type="text" id="searchBar" placeholder="Search menu items..." oninput="filterMenu()" />
+
+    <div class="menu-category" data-category="coffee">
+      <h3 onclick="toggleCategory(this)">☕ Coffee</h3>
+      <div class="menu-item"><span>Espresso</span><span>$3.00</span></div>
+      <div class="menu-item"><span>Cappuccino</span><span>$3.50</span></div>
+      <div class="menu-item"><span>Latte</span><span>$4.00</span></div>
+      <div class="menu-item"><span>Mocha</span><span>$4.50</span></div>
+    </div>
+
+    <div class="menu-category" data-category="tea">
+      <h3 onclick="toggleCategory(this)">🍵 Tea</h3>
+      <div class="menu-item"><span>Green Tea</span><span>$2.50</span></div>
+      <div class="menu-item"><span>Chai</span><span>$2.75</span></div>
+      <div class="menu-item"><span>Herbal Tea</span><span>$3.00</span></div>
+    </div>
+
+    <div class="menu-category" data-category="pastries">
+      <h3 onclick="toggleCategory(this)">🥐 Pastries</h3>
+      <div class="menu-item"><span>Croissant</span><span>$2.50</span></div>
+      <div class="menu-item"><span>Muffin</span><span>$2.00</span></div>
+      <div class="menu-item"><span>Bagel</span><span>$2.25</span></div>
+    </div>
+  </div>
+
+  <script>
+    let isSignUp = false;
+
+    window.onload = function () {
+      const user = JSON.parse(localStorage.getItem('cafeUser'));
+      if (user) {
+        showMenu(user);
+      }
+    }
+
+    function toggleForm() {
+      const formTitle = document.getElementById('form-title');
+      const toggleText = document.querySelector('.toggle');
+      const extraField = document.getElementById('extra-field');
+
+      isSignUp = !isSignUp;
+
+      if (isSignUp) {
+        formTitle.innerText = 'Sign Up';
+        toggleText.innerText = 'Already have an account? Login';
+        extraField.innerHTML = '<input type="text" id="username" placeholder="Username" required />';
+      } else {
+        formTitle.innerText = 'Login';
+        toggleText.innerText = "Don't have an account? Sign Up";
+        extraField.innerHTML = '';
+      }
+    }
+
+    function handleSubmit() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const username = document.getElementById('username')?.value;
+
+      if (!email || !password || (isSignUp && !username)) {
+        alert('Please fill out all fields.');
+        return;
+      }
+
+      if (isSignUp) {
+        localStorage.setItem('cafeUser', JSON.stringify({ email, password, username }));
+        alert('Account created! You can now log in.');
+        toggleForm();
+        return;
+      }
+
+      const storedUser = JSON.parse(localStorage.getItem('cafeUser'));
+      if (storedUser && storedUser.email === email && storedUser.password === password) {
+        showMenu(storedUser);
+      } else {
+        alert('Incorrect credentials or user not found.');
+      }
+    }
+
+    function showMenu(user) {
+      document.getElementById('auth-box').style.display = 'none';
+      document.getElementById('menu').style.display = 'block';
+      document.getElementById('welcome-user').innerText = user?.username ? `Hello, ${user.username}!` : '';
+    }
+
+    function logoutUser() {
+      localStorage.removeItem('cafeUser');
+      document.getElementById('menu').style.display = 'none';
+      document.getElementById('auth-box').style.display = 'block';
+      document.getElementById('email').value = '';
+      document.getElementById('password').value = '';
+    }
+
+    function filterMenu() {
+      const input = document.getElementById('searchBar').value.toLowerCase();
+      const items = document.querySelectorAll('.menu-item');
+
+      items.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        item.style.display = text.includes(input) ? 'flex' : 'none';
+      });
+    }
+
+    function toggleCategory(header) {
+      let next = header.nextElementSibling;
+      while (next && next.classList.contains('menu-item')) {
+        next.style.display = next.style.display === 'none' ? 'flex' : 'none';
+        next = next.nextElementSibling;
+      }
+    }
+  </script>
+</body>
+</html>
